@@ -2,7 +2,7 @@
 // @name        WaniKani SRS Level Progress
 // @namespace   hitechbunny
 // @description Review schedule explorer for WaniKani
-// @version     0.0.3
+// @version     0.0.4
 // @include     https://www.wanikani.com/dashboard
 // @include     https://www.wanikani.com/
 // @run-at      document-end
@@ -28,6 +28,13 @@
         '.dashboard section.srs-progress span {'+
         '    margin-bottom: 4px;'+
         '}'+
+        '.dashboard section.srs-progress .srs-innner-progress .leech-count .leech-breakdown {'+
+        '    background-color: black;'+
+        '    font-size: 0.8em;'+
+        '    font-weight: 100;'+
+        '    opacity: 0.75;'+
+        '    display: none;'+
+        '}'+
         '.dashboard section.srs-progress .srs-innner-progress .leech-count {'+
         '    background-color: black;'+
         '    position: absolute;'+
@@ -44,6 +51,9 @@
         '}'+
         '.dashboard section.srs-progress li:hover .srs-innner-progress .leech-count {'+
         '    opacity: 1.0;'+
+        '}'+
+        '.dashboard section.srs-progress li:hover .srs-innner-progress .leech-count .leech-breakdown {'+
+        '    display: inline;'+
         '}'+
         '';
 
@@ -172,8 +182,18 @@
             var leech_total = json.levels[level].leeches_total;
             if (leech_total) {
                 var html = '<span class="leech-count" title="'+leech_total+' '+(leech_total > 1 ? 'leeches' : 'leech')+'">'+
-                    '<a href="https://wanikanitools.curiousattemptbunny.com/leeches.html?sort_by=srs&api_key='+api_key+'#'+level+'" target="_blank">'+
-                    leech_total+
+                    '<a href="https://wanikanitools.curiousattemptbunny.com/leeches.html?sort_by=srs&api_key='+api_key+'#'+level+'" target="_blank">';
+                if (level == 'apprentice' || level == 'guru') {
+                    html += '<span class="leech-breakdown">(';
+                    json.levels[level].srs_level_leeches_totals.forEach(function(subtotal, i) {
+                        if (i>0) {
+                            html += ' / ';
+                        }
+                        html += subtotal;
+                    });
+                    html += ')&nbsp</span>';
+                }
+                html += leech_total+
                     '</a></span>';
                 $('.srs-progress li#'+level+' .srs-innner-progress').append(html);
             }
