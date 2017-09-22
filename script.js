@@ -2,7 +2,7 @@
 // @name        WaniKani SRS Level Progress
 // @namespace   hitechbunny
 // @description Review schedule explorer for WaniKani
-// @version     0.0.4
+// @version     0.0.5
 // @include     https://www.wanikani.com/dashboard
 // @include     https://www.wanikani.com/
 // @run-at      document-end
@@ -139,7 +139,9 @@
     }
 
     var update = function(json) {
+        $('.srs-innner-progress').remove();
         $('.srs-inner-progress-count').remove();
+        $('.leech-count').remove();
         var level_counts = {};
         var srs_numeric_to_inner_level = [0, 1, 2, 3, 4, 1, 2, 1, 1, 1];
         var srs_to_number_of_inner_levels = {
@@ -160,7 +162,7 @@
                     var delta = true_total - running_total;
 
                     // assume that the missing items are at the most advanced level
-                    if (delta > 0) {
+                    if (delta !== 0) {
                         //total += delta;
                         missing_data = true;
                     }
@@ -200,10 +202,15 @@
         });
     };
     window.raw_user_data = null;
+    var cached_json = localStorage.getItem('srs-level-progress-cache');
+    if (cached_json) {
+        update(JSON.parse(cached_json));
+    }
     get_api_key().then(function() {
         console.log('v2 api_key is', api_key);
         if (api_key) {
             ajax_retry('https://wanikanitools.curiousattemptbunny.com/srs/status?api_key='+api_key, 3, 120000).then(function(json) {
+                localStorage.setItem('srs-level-progress-cache', JSON.stringify(json));
                 update(json);
             });
         }
